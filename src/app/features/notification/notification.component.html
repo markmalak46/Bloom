@@ -1,0 +1,83 @@
+<section class="max-w-3xl mx-auto mt-6 px-4">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-bell text-indigo-500"></i>
+            Notifications
+        </h2>
+        <div class="flex items-center gap-3">
+            <button 
+                (click)="markAllAsRead()"
+                class="px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-full border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition cursor-pointer">
+                <i class="fa-solid fa-check-double mr-1"></i> Mark all as read
+            </button>
+            <span class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full border border-indigo-100 dark:border-indigo-500/20">
+                {{notifications.length}} total
+            </span>
+        </div>
+    </div>
+
+    @if(loading) {
+        <div class="flex flex-col items-center justify-center py-20 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-3xl border border-slate-200 dark:border-slate-800">
+            <div class="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p class="mt-4 text-slate-500 font-medium">Fetching your updates...</p>
+        </div>
+    } @else if(error) {
+        <div class="p-8 text-center bg-red-50 dark:bg-red-900/20 rounded-3xl border border-red-100 dark:border-red-900/30">
+            <i class="fa-solid fa-circle-exclamation text-3xl text-red-500 mb-4"></i>
+            <p class="text-red-600 dark:text-red-400 font-bold">{{error}}</p>
+        </div>
+    } @else if(notifications.length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm text-center px-6">
+            <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
+                <i class="fa-solid fa-bell-slash text-3xl text-slate-300 dark:text-slate-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">No notifications yet</h3>
+            <p class="text-slate-500 dark:text-slate-400 max-w-sm">When someone interacts with your posts or follows you, you'll see it here.</p>
+        </div>
+    } @else {
+        <div class="space-y-3">
+            @for(notif of notifications; track notif._id) {
+                <div [class.bg-indigo-50/50]="!notif.isRead"
+                     [class.dark:bg-indigo-500/5]="!notif.isRead"
+                     class="group relative flex items-start gap-4 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/5 cursor-pointer">
+                    
+                    <div class="relative shrink-0">
+                        <img [src]="notif.actor.photo" [alt]="notif.actor.name" class="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm">
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-sm">
+                            <i class="fa-solid text-[10px]" [ngClass]="getNotificationIcon(notif.type)"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0 pr-4">
+                        <p class="text-sm text-slate-800 dark:text-slate-200 leading-snug">
+                            <span class="font-bold text-slate-900 dark:text-white">{{notif.actor.name}}</span> 
+                            {{getNotificationMessage(notif)}}
+                        </p>
+                        @if(notif.entity && notif.entity.body) {
+                            <div class="mt-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 italic text-xs text-slate-500 dark:text-slate-400 truncate">
+                                "{{notif.entity.body}}"
+                            </div>
+                        }
+                        <span class="block mt-2 text-[10px] font-bold text-indigo-500/80 uppercase tracking-wider">
+                            {{notif.createdAt | date:'medium'}}
+                        </span>
+                    </div>
+
+                    @if(!notif.isRead) {
+                        <div class="absolute top-4 right-4 w-2 h-2 rounded-full bg-indigo-600 animate-pulse shadow-sm shadow-indigo-600/50"></div>
+                    }
+
+                    <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none ring-1 ring-inset ring-indigo-500/20 transition-opacity"></div>
+                    
+                    @if(notif.entityType === 'post') {
+                        <a [routerLink]="['/details', notif.entityId]" (click)="markAsRead(notif)" class="absolute inset-0 z-10"></a>
+                    } @else if(notif.type === 'follow_user') {
+                        <a [routerLink]="['/profile', notif.actor._id]" (click)="markAsRead(notif)" class="absolute inset-0 z-10"></a>
+                    } @else {
+                        <a (click)="markAsRead(notif)" class="absolute inset-0 z-10"></a>
+                    }
+                </div>
+            }
+        </div>
+    }
+</section>

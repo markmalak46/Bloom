@@ -1,0 +1,244 @@
+<section class="lg:py-6 max-w-350 mx-auto font-sans">
+    <div class="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_300px] xl:grid-cols-[300px_minmax(0,1fr)_320px]">
+
+        <app-side-left></app-side-left>
+
+        <section class="w-full">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 mb-5 flex items-center gap-3">
+                <div
+                    class="w-12 h-12 bg-indigo-50 dark:bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-500 shrink-0">
+                    <i class="fa-solid fa-bookmark text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 dark:text-white">Saved Posts</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">View and manage your bookmarked posts here.
+                    </p>
+                </div>
+            </div>
+            @if(loading) {
+            <div
+                class="flex flex-col items-center justify-center p-12 bg-white/50 rounded-2xl border border-slate-200/50">
+                <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p class="mt-4 text-slate-500 font-medium">Loading bookmarks...</p>
+            </div>
+            } @else if(postList.length === 0) {
+            <div
+                class="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
+                <div
+                    class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300 text-2xl">
+                    <i class="fa-regular fa-bookmark"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700 mb-1">No saved posts</h3>
+                <p class="text-sm text-slate-500">Posts you bookmark will appear here so you can easily find them later.
+                </p>
+                <a [routerLink]="['/feed']"
+                    class="mt-6 bg-indigo-50 text-indigo-600 font-semibold px-6 py-2 rounded-xl text-sm hover:bg-indigo-100 transition-colors cursor-pointer">Explore
+                    Feed</a>
+            </div>
+            } @else {
+            @for(post of postList; track post._id){
+            <div
+                class="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4 overflow-hidden">
+                <div class="flex items-start justify-between p-5 pb-3">
+                    <div class="flex items-center gap-3">
+                        <img [src]="post.user.photo" [alt]="post.user.username"
+                            class="w-10 h-10 rounded-full object-cover shrink-0 border-2 border-white shadow-sm ring-1 ring-slate-200" />
+                        <div>
+                            <a [routerLink]="['/user', post.user._id]"
+                                class="block text-sm font-bold text-slate-900 hover:text-[#6A3FD9] transition-colors cursor-pointer leading-tight">{{post.user.name}}</a>
+                            <div class="flex items-center text-xs text-slate-400 mt-0.5 gap-1.5 font-medium">
+                                <span>@{{post.user.username}}</span>
+                                <span class="w-1 h-1 rounded-full bg-slate-300 inline-block"></span>
+                                <span>{{post.createdAt | date: 'mediumDate'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button
+                            class="text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full w-8 h-8 flex items-center justify-center outline-none transition-all cursor-pointer"
+                            type="button">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                        <div
+                            class="z-30 hidden group-hover:block absolute right-0 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl w-44 overflow-hidden py-1.5">
+                            <button (click)="toggleBookmark(post)"
+                                class="inline-flex items-center gap-2 w-full px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer font-medium">
+                                <i [ngClass]="post.bookmarked ? 'fa-solid text-indigo-500' : 'fa-regular text-slate-400'"
+                                    class="fa-bookmark w-4"></i>
+                                {{post.bookmarked ? 'Unsave Post' : 'Save Post'}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-5 pb-4">
+                    @if(post.body){
+                    <p [routerLink]="['/details', post._id]"
+                        class="text-sm text-slate-700 dark:text-slate-300 mb-4 leading-relaxed whitespace-pre-wrap cursor-pointer hover:text-slate-900 transition-colors">
+                        {{post.body}}</p>
+                    }
+                    @if(post.image){
+                    <div [routerLink]="['/details', post._id]"
+                        class="rounded-2xl overflow-hidden border border-slate-100 shadow-sm mb-4 cursor-pointer">
+                        <img [src]="post.image" class="w-full h-auto max-h-125 object-cover" [alt]="post.body">
+                    </div>
+                    }
+                    @if(post.sharedPost){
+                    <div
+                        class="p-4 rounded-2xl border border-slate-200 bg-slate-50/40 backdrop-blur-xs hover:border-indigo-200 transition-all duration-300 group/shared">
+                        <div class="flex items-center gap-2.5 mb-3">
+                            <img [routerLink]="['/user', post.sharedPost.user._id]" [src]="post.sharedPost.user.photo"
+                                [alt]="post.sharedPost.user.name"
+                                class="w-8 h-8 rounded-full object-cover border border-white shadow-sm cursor-pointer hover:ring-2 hover:ring-indigo-500/20 transition-all">
+                            <div class="flex flex-col">
+                                <span [routerLink]="['/user', post.sharedPost.user._id]"
+                                    class="text-xs font-bold text-slate-800 cursor-pointer hover:text-indigo-600 transition-colors">{{post.sharedPost.user.name}}</span>
+                                <span class="text-2xs text-slate-400 font-medium">{{post.sharedPost.createdAt |
+                                    date:'mediumDate'}}</span>
+                            </div>
+                        </div>
+                        @if(post.sharedPost.body){
+                        <p [routerLink]="['/details', post.sharedPost._id]"
+                            class="text-xs text-slate-600 mb-3 leading-relaxed whitespace-pre-wrap cursor-pointer hover:text-slate-800 transition-colors">
+                            {{post.sharedPost.body}}</p>
+                        }
+                        @if(post.sharedPost.image){
+                        <div [routerLink]="['/details', post.sharedPost._id]"
+                            class="rounded-xl overflow-hidden border border-slate-100 shadow-xs cursor-pointer group-hover/shared:shadow-sm transition-all">
+                            <img [src]="post.sharedPost.image" class="w-full h-auto max-h-80 object-cover" alt="">
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+                <div class="flex items-center justify-between px-5 pb-3 text-xs font-semibold text-slate-400">
+                    <div class="flex items-center gap-1.5 hover:text-slate-600 transition-colors cursor-pointer"
+                        (click)="openLikesModal(post._id)">
+                        <span class="w-5 h-5 rounded-full bg-red-50 flex items-center justify-center">
+                            <i class="fa-solid fa-heart text-red-500 text-[9px]"></i>
+                        </span>
+                        <span class="hover:underline">{{post.likesCount}} likes</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="cursor-pointer hover:text-slate-600 transition-colors">{{post.sharesCount || 0}}
+                            shares</span>
+                        <span class="cursor-pointer hover:text-slate-600 transition-colors">{{post.commentsCount}}
+                            comments</span>
+                    </div>
+                </div>
+                <div class="flex items-center border-t border-slate-50">
+                    <button (click)="toggleLike(post)" [ngClass]="post.isLiked ? 'text-pink-500' : 'text-slate-500'"
+                        class="flex-1 cursor-pointer flex items-center justify-center gap-2 font-bold text-[13px] hover:bg-slate-50 hover:text-pink-500 py-3 transition-colors group">
+                        <i class="fa-heart text-base transition-colors"
+                            [ngClass]="post.isLiked ? 'fa-solid text-pink-500 animate-like-pop' : 'fa-regular group-hover:text-pink-500'"></i>
+                        Like
+                    </button>
+                    <div class="w-px h-5 bg-slate-100"></div>
+                    <button #commentBtn
+                        class="flex-1 flex cursor-pointer items-center justify-center gap-2 text-slate-500 font-bold text-[13px] hover:bg-slate-50 hover:text-indigo-600 py-3 transition-colors group">
+                        <i class="fa-regular fa-comment text-base group-hover:text-indigo-600 transition-colors"></i>
+                        Comment
+                    </button>
+                    <div class="w-px h-5 bg-slate-100"></div>
+                    <button (click)="openShareModal(post)"
+                        class="flex-1 flex cursor-pointer items-center justify-center gap-2 text-slate-500 font-bold text-[13px] hover:bg-slate-50 hover:text-indigo-600 py-3 transition-colors group">
+                        <i class="fa-solid fa-share-nodes text-base group-hover:text-indigo-600 transition-colors"></i>
+                        Share
+                    </button>
+                </div>
+                @defer (on interaction(commentBtn)) {
+                <div class="border-t border-slate-100 px-5 py-4">
+                    <app-comment-post [postId]="post._id"></app-comment-post>
+                </div>
+                }
+            </div>
+            }
+            }
+            @if(isSharing) {
+            <div
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200">
+                <div
+                    class="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden transform animate-in zoom-in-95 duration-200">
+                    <div class="flex items-center justify-between p-5 border-b border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-share-nodes text-indigo-500"></i>
+                            Share Post
+                        </h3>
+                        <button (click)="cancelShare()"
+                            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <form (submit)="submitShareForm($event)" class="p-5">
+                        <textarea [formControl]="shareContent"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/40 outline-none resize-none min-h-24 mb-4 transition-all"
+                            placeholder="Say something about this post..."></textarea>
+                        <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+                            <button type="button" (click)="cancelShare()"
+                                class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors cursor-pointer">
+                                Cancel
+                            </button>
+                            <button type="submit" [disabled]="!shareContent.value"
+                                class="bg-linear-to-r from-indigo-600 to-violet-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 hover:scale-[1.02] disabled:opacity-50 transition-all shadow-lg shadow-indigo-600/20 cursor-pointer">
+                                Share Now
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            }
+            @if(isViewingLikes) {
+            <div
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200">
+                <div
+                    class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform animate-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]">
+                    <div
+                        class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-heart text-pink-500"></i>
+                            Likes
+                        </h3>
+                        <button (click)="closeLikesModal()"
+                            class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors cursor-pointer">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="p-2 overflow-y-auto overflow-x-hidden flex-1">
+                        @if(likesLoading) {
+                        <div class="flex flex-col items-center justify-center py-10">
+                            <div class="w-8 h-8 border-3 border-pink-200 border-t-pink-500 rounded-full animate-spin">
+                            </div>
+                        </div>
+                        } @else if(likesList.length === 0) {
+                        <div class="flex flex-col items-center justify-center py-10 text-slate-400">
+                            <i class="fa-regular fa-heart text-3xl mb-2 text-slate-300"></i>
+                            <p class="text-sm font-medium">No likes yet</p>
+                        </div>
+                        } @else {
+                        <div class="flex flex-col">
+                            @for(user of likesList; track user._id) {
+                            <div class="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors cursor-pointer"
+                                [routerLink]="['/user', user._id]" (click)="closeLikesModal()">
+                                <div class="flex items-center gap-3">
+                                    <img [src]="user.photo" [alt]="user.name"
+                                        class="w-10 h-10 rounded-full object-cover shadow-sm border border-slate-100 dark:border-slate-700">
+                                    <div class="flex flex-col">
+                                        <span
+                                            class="text-sm font-bold text-slate-800 dark:text-slate-100">{{user.name}}</span>
+                                        <span
+                                            class="text-xs text-slate-500 dark:text-slate-400 font-medium">@{{user.username
+                                            || user.name.toLowerCase().replace(' ', '')}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </section>
+
+        <app-side-right></app-side-right>
+    </div>
+</section>

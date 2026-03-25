@@ -1,0 +1,441 @@
+<section class="mx-auto mt-4 max-w-7xl px-3 sm:px-4 lg:px-6">
+    @if (loading) {
+    <div class="flex h-64 items-center justify-center">
+        <div class="flex flex-col items-center gap-3">
+            <div
+                class="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 dark:bg-violet-500/10 dark:text-violet-300">
+                <i class="fas fa-spinner animate-spin text-2xl"></i>
+            </div>
+            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                Loading profile...
+            </p>
+        </div>
+    </div>
+    } @else if (error) {
+    <div
+        class="mt-8 rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-red-600 shadow-sm dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+        <i class="fa-solid fa-circle-exclamation mr-2"></i> {{ error }}
+    </div>
+    } @else if (profileData) {
+    <div
+        class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] dark:border-slate-800 dark:bg-slate-900">
+        <div class="relative h-44 w-full sm:h-52 lg:h-72">
+            @if (profileData.cover) {
+            <img [src]="profileData.cover" alt="Cover photo" class="h-full w-full object-cover" />
+            } @else {
+            <div class="h-full w-full bg-linear-to-r from-[#6A3FD9] via-[#3E6EDC] to-[#49C7A6] opacity-90"></div>
+            }
+            <div class="absolute inset-0 bg-black/10"></div>
+        </div>
+        <div class="relative px-3 pb-5 sm:px-4 sm:pb-6 lg:px-8 lg:pb-8">
+            <div class="relative z-10 -mt-12 sm:-mt-14 lg:-mt-18">
+                <div
+                    class="rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/95 sm:p-5 lg:p-6">
+                    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+                            <div class="relative mx-auto w-max sm:mx-0">
+                                <img [src]="profileData.photo || 'https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png'"
+                                    [alt]="profileData.name"
+                                    class="h-24 w-24 rounded-full border-4 border-white bg-slate-50 object-cover shadow-md dark:border-slate-950 sm:h-28 sm:w-28 lg:h-36 lg:w-36" />
+                                @if (isCurrentUser) {
+                                <input type="file" #photoInput accept="image/*" class="hidden" (change)="onPhotoSelected($event)">
+                                <button (click)="photoInput.click()" [disabled]="isUploadingPhoto"
+                                    class="absolute bottom-1 right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-slate-700 shadow-sm transition hover:bg-slate-200 disabled:opacity-70 dark:border-slate-950 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:bottom-2 sm:right-2 sm:h-10 sm:w-10 cursor-pointer">
+                                    @if(isUploadingPhoto) {
+                                        <i class="fa-solid fa-spinner animate-spin text-sm"></i>
+                                    } @else {
+                                        <i class="fa-solid fa-camera text-sm"></i>
+                                    }
+                                </button>
+                                }
+                            </div>
+                            <div class="min-w-0 text-center sm:text-left">
+                                <h1
+                                    class="truncate text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-[28px] lg:text-3xl">
+                                    {{ profileData.name }}
+                                </h1>
+                                @if (profileData.username) {
+                                <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
+                                    @{{ profileData.username }}
+                                </p>
+                                }
+                                <div class="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
+                                    <div
+                                        class="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                        {{ profileData.followersCount }} Followers
+                                    </div>
+                                    <div
+                                        class="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                        {{ profileData.followingCount }} Following
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-center gap-3 sm:justify-start lg:justify-end">
+                            @if (isCurrentUser) {
+                            <!-- <button
+                                class="rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                                <i class="fa-solid fa-pen mr-2"></i> Edit Profile
+                            </button>
+                            <button
+                                class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 shadow-sm transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </button> -->
+                            } @else {
+                            <button (click)="toggleFollow()" [ngClass]="
+                                profileData.isFollowing
+                                    ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+                                    : 'bg-linear-to-r from-indigo-600 to-violet-600 text-white hover:opacity-90'
+                                " class="flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold shadow-sm transition-all">
+                                @if (profileData.isFollowing) {
+                                <i class="fa-solid fa-user-check"></i> Following
+                                } @else {
+                                <i class="fa-solid fa-user-plus text-xs"></i> Follow
+                                }
+                            </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(300px,0.9fr)_minmax(0,1.5fr)]">
+                    <div
+                        class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <h3 class="mb-4 flex items-center gap-2 text-base font-bold text-slate-800 dark:text-white">
+                            <i class="fa-regular fa-address-card text-violet-500"></i>
+                            About
+                        </h3>
+                        <ul class="space-y-4 text-sm font-medium text-slate-600 dark:text-slate-300">
+                            @if (profileData.email) {
+                            <li class="flex items-start gap-3">
+                                <i class="fa-regular fa-envelope mt-0.5 w-5 shrink-0 text-center text-slate-400"></i>
+                                <span class="break-all">{{ profileData.email }}</span>
+                            </li>
+                            }
+                            @if (profileData.dateOfBirth) {
+                            <li class="flex items-start gap-3">
+                                <i class="fa-solid fa-cake-candles mt-0.5 w-5 shrink-0 text-center text-slate-400"></i>
+                                <span>Born {{ profileData.dateOfBirth | date:'longDate' }}</span>
+                            </li>
+                            }
+                            @if (profileData.gender) {
+                            <li class="flex items-start gap-3 capitalize">
+                                <i class="fa-solid fa-venus-mars mt-0.5 w-5 shrink-0 text-center text-slate-400"></i>
+                                <span>{{ profileData.gender }}</span>
+                            </li>
+                            }
+                            @if (profileData.createdAt) {
+                            <li class="flex items-start gap-3">
+                                <i
+                                    class="fa-regular fa-calendar-days mt-0.5 w-5 shrink-0 text-center text-slate-400"></i>
+                                <span>Joined {{ profileData.createdAt | date:'MMMM yyyy' }}</span>
+                            </li>
+                            }
+                        </ul>
+                    </div>
+                    @if (!isCurrentUser && profileData.followers?.length) {
+                    <div
+                        class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div class="mb-4 flex items-center justify-between gap-3">
+                            <h3 class="flex items-center gap-2 text-base font-bold text-slate-800 dark:text-white">
+                                <i class="fa-solid fa-users text-violet-500"></i>
+                                Followers
+                            </h3>
+                            <span
+                                class="shrink-0 rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-600 dark:bg-violet-500/10 dark:text-violet-300">
+                                {{ profileData.followers!.length }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            @for (follower of profileData.followers | slice:0:4; track follower._id || follower.id) {
+                            <div
+                                class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 transition hover:border-violet-200 hover:bg-white dark:border-slate-800 dark:bg-slate-950 dark:hover:border-violet-500/30">
+                                <a [routerLink]="['/user', follower._id || follower.id]"
+                                    class="flex min-w-0 flex-1 items-center gap-3 overflow-hidden">
+                                    <img [src]="follower.photo || 'https://pub-3cba56bacf9f4965bbb0989e07dada12.r2.dev/linkedPosts/default-profile.png'"
+                                        [alt]="follower.name"
+                                        class="h-12 w-12 shrink-0 rounded-full bg-slate-100 object-cover shadow-sm" />
+                                    <div class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm font-bold text-slate-800 dark:text-white">
+                                            {{ follower.name }}
+                                        </span>
+                                        <span class="block text-xs text-slate-500 dark:text-slate-400">
+                                            {{ follower.followersCount || 0 }} followers
+                                        </span>
+                                    </div>
+                                </a>
+                                <button type="button" (click)="toggleFollowUser(follower)" [ngClass]="
+                                    follower.isFollowing
+                                        ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+                                        : 'bg-linear-to-r from-[#6A3FD9] to-[#3E6EDC] text-white hover:opacity-90'
+                                    " class="shrink-0 rounded-xl px-3 py-2 text-xs font-bold shadow-sm transition-all">
+                                    @if (follower.isFollowing) {
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa-solid fa-user-check text-[11px]"></i>
+                                        <span>Following</span>
+                                    </span>
+                                    } @else {
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa-solid fa-user-plus text-[11px]"></i>
+                                        <span>Follow</span>
+                                    </span>
+                                    }
+                                </button>
+                            </div>
+                            }
+                        </div>
+                        @if (profileData.followers!.length > 4) {
+                        <button [routerLink]="['/user', profileData.id || profileData._id, 'followers']"
+                            class="mt-4 w-full rounded-xl bg-violet-50 py-3 text-sm font-bold text-violet-600 transition hover:bg-violet-100 dark:bg-violet-500/10 dark:text-violet-300 dark:hover:bg-violet-500/20">
+                            View all {{ profileData.followers!.length }} followers
+                        </button>
+                        }
+                    </div>
+                    }
+                </div>
+                <div class="mt-8 border-t border-slate-100 px-3 pt-8 pb-10 dark:border-slate-800 sm:px-6 lg:px-10">
+                    <div class="mb-6 flex items-center justify-between">
+                        <h3 class="flex items-center gap-2 text-xl font-extrabold text-slate-900 dark:text-white">
+                            <i class="fa-solid fa-rectangle-list text-violet-500"></i>
+                            Recent Posts
+                        </h3>
+                        <span
+                            class="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                            {{ posts.length }} Posts
+                        </span>
+                    </div>
+                    @if (postsLoading) {
+                    <div class="flex flex-col items-center justify-center py-12">
+                        <i class="fa-solid fa-spinner fa-spin text-2xl text-violet-500"></i>
+                        <p class="mt-3 text-sm font-medium text-slate-500">Loading posts...</p>
+                    </div>
+                    } @else {
+                    <div class="grid grid-cols-1 gap-6">
+                        @for (post of posts; track post._id) {
+                        <article
+                            class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+                            <div class="flex items-center justify-between p-4 sm:p-5">
+                                <div class="flex items-center gap-3">
+                                    <img [src]="post.user.photo" [alt]="post.user.name"
+                                        class="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm dark:border-slate-800" />
+                                    <div class="min-w-0">
+                                        <h4 class="truncate text-sm font-bold text-slate-900 dark:text-white">
+                                            {{ post.user.name }}
+                                        </h4>
+                                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                            @{{ post.user.username }} • {{ post.createdAt | date : 'mediumDate' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                @if (post.user._id === loggedInUserId) {
+                                <div class="relative group">
+                                    <button
+                                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <div
+                                        class="invisible absolute right-0 top-full z-10 mt-1 w-36 origin-top-right rounded-xl border border-slate-200 bg-white p-1 shadow-xl group-hover:visible dark:border-slate-800 dark:bg-slate-950">
+                                        <button (click)="openEditModal(post)"
+                                            class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                            Edit Post
+                                        </button>
+                                        <div class="mx-2 my-1 h-px bg-slate-100 dark:bg-slate-800"></div>
+                                        <button (click)="deletePost(post._id)"
+                                            class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-bold text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/30">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                            Delete Post
+                                        </button>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                            <div class="px-4 pb-4 sm:px-5">
+                                @if (post.body) {
+                                <p [routerLink]="['/details', post._id]"
+                                    class="whitespace-pre-wrap text-sm leading-relaxed text-slate-700 dark:text-slate-300 mb-4 cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                                    {{ post.body }}
+                                </p>
+                                }
+                                @if (post.image) {
+                                <div [routerLink]="['/details', post._id]"
+                                    class="mb-4 overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm cursor-pointer">
+                                    <img [src]="post.image" class="max-h-125 w-full object-cover"
+                                        [alt]="post.body || 'Post image'" />
+                                </div>
+                                }
+                                @if(post.sharedPost){
+                                    <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/40 dark:border-slate-800/60 dark:bg-slate-900/40 backdrop-blur-xs hover:border-indigo-200 dark:hover:border-indigo-500/30 transition-all duration-300 group/shared">
+                                        <div class="flex items-center gap-2.5 mb-3">
+                                            <img [routerLink]="['/user', post.sharedPost.user._id]" [src]="post.sharedPost.user.photo" [alt]="post.sharedPost.user.name" class="w-8 h-8 rounded-full object-cover border border-white dark:border-slate-800 shadow-sm cursor-pointer hover:ring-2 hover:ring-indigo-500/20 transition-all">
+                                            <div class="flex flex-col">
+                                                <span [routerLink]="['/user', post.sharedPost.user._id]" class="text-xs font-bold text-slate-800 dark:text-slate-100 cursor-pointer hover:text-indigo-600 transition-colors">{{post.sharedPost.user.name}}</span>
+                                                <span class="text-[10px] text-slate-400 font-medium">{{post.sharedPost.createdAt | date:'mediumDate'}}</span>
+                                            </div>
+                                        </div>
+                                        @if(post.sharedPost.body){
+                                            <p [routerLink]="['/details', post.sharedPost._id]" class="text-xs text-slate-600 dark:text-slate-400 mb-3 leading-relaxed whitespace-pre-wrap cursor-pointer hover:text-slate-800 dark:hover:text-slate-200 transition-colors">{{post.sharedPost.body}}</p>
+                                        }
+                                        @if(post.sharedPost.image){
+                                            <div [routerLink]="['/details', post.sharedPost._id]" class="rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-xs cursor-pointer group-hover/shared:shadow-sm transition-all">
+                                                <img [src]="post.sharedPost.image" class="w-full h-auto max-h-80 object-cover" alt="">
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div
+                                class="flex items-center justify-between px-5 pb-3 text-xs font-semibold text-slate-400 dark:text-slate-500">
+                                <div
+                                    class="flex items-center gap-1.5 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer">
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
+                                        <i class="fa-solid fa-heart text-red-400 dark:text-red-500 text-[9px]"></i>
+                                    </span>
+                                    <span>{{post.likesCount}} likes</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors">{{post.sharesCount}}
+                                        shares</span>
+                                    <span
+                                        class="cursor-pointer hover:text-slate-600 dark:hover:text-slate-300 transition-colors">{{post.commentsCount}}
+                                        comments</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center border-t border-slate-50 dark:border-slate-800/50">
+                                <button (click)="toggleLike(post)"
+                                    [ngClass]="post.isLiked ? 'text-pink-500' : 'text-slate-500'"
+                                    class="flex-1 cursor-pointer flex items-center justify-center gap-2 font-bold text-[13px] hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-pink-500 py-3 transition-colors group">
+                                    <i class="fa-heart text-base transition-colors"
+                                        [ngClass]="post.isLiked ? 'fa-solid text-pink-500 animate-like-pop' : 'fa-regular group-hover:text-pink-500'"></i>
+                                    Like
+                                </button>
+                                <div class="w-px h-5 bg-slate-100 dark:bg-slate-800/50"></div>
+                                <button #commentBtn
+                                    class="flex-1 flex cursor-pointer items-center justify-center gap-2 text-slate-500 font-bold text-[13px] hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 py-3 transition-colors group">
+                                    <i
+                                        class="fa-regular fa-comment text-base group-hover:text-indigo-600 transition-colors"></i>
+                                    Comment
+                                </button>
+                                <div class="w-px h-5 bg-slate-100 dark:bg-slate-800/50"></div>
+                                <button (click)="openShareModal(post)"
+                                    class="flex-1 flex cursor-pointer items-center justify-center gap-2 text-slate-500 font-bold text-[13px] hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 py-3 transition-colors group">
+                                    <i
+                                        class="fa-solid fa-share-nodes text-base group-hover:text-indigo-600 transition-colors"></i>
+                                    Share
+                                </button>
+                            </div>
+                            @defer (on interaction(commentBtn)) {
+                            <div class="border-t border-slate-50 dark:border-slate-800/50 px-5 py-4">
+                                <app-comment-post [postId]="post._id"></app-comment-post>
+                            </div>
+                            }
+                        </article>
+                        } @empty {
+                        <div
+                            class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-100 py-16 text-center dark:border-slate-800/50">
+                            <div
+                                class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 text-slate-300 dark:bg-slate-800/20 dark:text-slate-600">
+                                <i class="fa-solid fa-scroll text-2xl"></i>
+                            </div>
+                            <h4 class="text-base font-bold text-slate-900 dark:text-white">No posts to show</h4>
+                            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                This user hasn't shared any posts yet.
+                            </p>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+    @if(isUpdateMode) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200">
+        <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-[#6A3FD9]"></i>
+                    Edit Post
+                </h3>
+                <button (click)="cancelUpdate()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form (submit)="submitUpdateForm($event)" class="p-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <img [src]="profileData?.photo" [alt]="profileData?.name" class="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm" />
+                    <div class="flex-1">
+                        <span class="block text-sm font-bold text-slate-900 dark:text-white leading-tight">{{profileData?.name}}</span>
+                        <div class="flex mt-1 items-center w-fit bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-0.5 text-slate-500">
+                            <i class="fa-solid fa-earth-americas text-[10px]"></i>
+                            <select [formControl]="privacy" class="border-none bg-transparent cursor-pointer ring-0 py-0 px-1.5 text-[11px] font-semibold outline-none appearance-none text-slate-600 dark:text-slate-400">
+                                <option value="public">Public</option>
+                                <option value="following">Followers</option>
+                                <option value="only_me">Only me</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <textarea [formControl]="content"
+                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-[#6A3FD9]/20 focus:border-[#6A3FD9]/40 outline-none resize-none min-h-32 mb-4 transition-all"
+                    placeholder="Update your post..."></textarea>
+                @if(imgUrl){
+                    <div class="relative group mb-4 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm max-h-60">
+                        <img [src]="imgUrl" [alt]="" class="w-full h-full object-cover" />
+                        <button (click)="imgUrl = ''; saveFile = null" type="button" class="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-red-500 transition-colors">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                }
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center">
+                        <input (change)="changeImg($event)" type="file" id="edit-file" class="hidden" />
+                        <label for="edit-file" class="flex cursor-pointer items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-[#6A3FD9] hover:bg-[#6A3FD9]/10 px-4 py-2 rounded-xl transition-all font-semibold text-sm">
+                            <i class="fa-regular fa-image text-lg text-[#6A3FD9]"></i>
+                            Replace Photo
+                        </label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" (click)="cancelUpdate()" class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-linear-to-r from-[#6A3FD9] to-[#3E6EDC] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 hover:scale-[1.02] transition-all shadow-lg shadow-[#6A3FD9]/20">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+    @if(isSharing) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200">
+        <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform animate-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-indigo-500"></i>
+                    Share Post
+                </h3>
+                <button (click)="cancelShare()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form (submit)="submitShareForm($event)" class="p-5">
+                <textarea [formControl]="shareContent"
+                    class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/40 outline-none resize-none min-h-24 mb-4 transition-all"
+                    placeholder="Say something about this post..."></textarea>
+                <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" (click)="cancelShare()" class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-linear-to-r from-indigo-600 to-violet-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:opacity-90 hover:scale-[1.02] transition-all shadow-lg shadow-indigo-600/20">
+                        Share Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+</section>

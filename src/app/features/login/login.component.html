@@ -1,0 +1,142 @@
+<section
+    class="min-h-screen flex items-center justify-center relative overflow-hidden bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 px-4">
+    <div class="absolute -top-40 -left-40 w-120 h-120 rounded-full mix-blend-screen filter blur-[100px] opacity-60 animate-pulse"
+        style="background: #6A3FD9;"></div>
+    <div class="absolute top-20 -right-20 w-140 h-140 rounded-full mix-blend-screen filter blur-[100px] opacity-60 animate-pulse animation-delay-2000"
+        style="background: #3E6EDC;"></div>
+    <div class="absolute -bottom-40 left-1/4 w-160 h-160 rounded-full mix-blend-screen filter blur-[100px] opacity-40 animate-pulse animation-delay-4000"
+        style="background: #4FA7D9;"></div>
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div
+            class="flex flex-col lg:flex-row bg-white/5 backdrop-blur-sm rounded-3xl overflow-hidden shadow-2xl max-w-6xl mx-auto">
+            <div class="hidden lg:flex w-full lg:w-1/2 p-8 sm:p-12 flex-col justify-center items-center text-center relative overflow-hidden"
+                style="background: linear-gradient(135deg, #6A3FD9, #3E6EDC, #4FA7D9, #49C7A6);">
+                <div class="relative animate-slide-up">
+                    <div class="inline-flex items-center justify-center w-35 h-35 rounded-full animate-bounce-slow">
+                        <img src="assets/imgs/Bloom white.png" alt="Bloom logo">
+                    </div>
+                </div>
+                <div class="relative animate-slide-up animation-delay-200">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+                        Welcome Back!
+                    </h1>
+                    <p class="text-white/90 text-lg sm:text-xl mb-6 max-w-md">
+                        Log in to continue your journey with Bloom
+                    </p>
+                </div>
+                <div class="relative space-y-3 mt-8 animate-slide-up animation-delay-400">
+                    <div class="flex items-center gap-3 text-white/90">
+                        <i class="fa-solid fa-check-circle text-green-300"></i>
+                        <span>Connect with amazing people</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-white/90">
+                        <i class="fa-solid fa-check-circle text-green-300"></i>
+                        <span>Share your moments</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-white/90">
+                        <i class="fa-solid fa-check-circle text-green-300"></i>
+                        <span>Discover inspiring content</span>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/2 bg-white p-6 sm:p-10 lg:p-12 overflow-y-auto max-h-[95vh] lg:max-h-none">
+                <div class="max-w-md mx-auto w-full animate-fade-in">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 tracking-tight">Sign In</h2>
+                        <p class="text-gray-500 mt-2 text-sm font-medium">Log in to your account</p>
+                    </div>
+                    <form [formGroup]="loginForm" (ngSubmit)="submitForm()" class="space-y-5">
+                        <div>
+                            <label for="login" class="block text-sm font-medium text-gray-700 mb-1.5 ml-1">Email or
+                                Username</label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i
+                                        class="fa-solid fa-envelope text-gray-400 group-focus-within:text-[#6A3FD9] transition-colors"></i>
+                                </div>
+                                <input type="text" id="login" formControlName="login"
+                                    class="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#6A3FD9] focus:ring-4 focus:ring-[#6A3FD9]/20 transition-all duration-300"
+                                    placeholder="you@example.com or username" />
+                            </div>
+                            @if (loginForm.get('login')?.invalid && loginForm.get('login')?.touched) {
+                            <div class="mt-2 ml-1 text-xs text-red-500 flex items-center gap-1 font-medium">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                @if (loginForm.get('login')?.hasError('required')) {
+                                <span>Email or username is required</span>
+                                } @else if (loginForm.get('login')?.hasError('minlength')) {
+                                <span>Must be at least 3 characters</span>
+                                }
+                            </div>
+                            }
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5 ml-1">
+                                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            </div>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i
+                                        class="fa-solid fa-lock text-gray-400 group-focus-within:text-[#6A3FD9] transition-colors"></i>
+                                </div>
+                                <input #password type="password" id="password" formControlName="password"
+                                    class="block w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#6A3FD9] focus:ring-4 focus:ring-[#6A3FD9]/20 transition-all duration-300"
+                                    placeholder="••••••••" />
+                                <div (click)="showPassword(password)"
+                                    class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-gray-400 hover:text-[#6A3FD9] transition-colors">
+                                    <i [class]="password.type === 'password' ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                                </div>
+                            </div>
+                            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                            <div class="mt-2 ml-1 text-xs text-red-500 flex items-start gap-1 font-medium">
+                                <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+                                <div class="flex flex-col">
+                                    @if (loginForm.get('password')?.hasError('required')) {
+                                    <span>Password is required</span>
+                                    }
+                                    @else if (loginForm.get('password')?.hasError('pattern')) {
+                                    <span>Min 8 chars, 1 uppercase, 1 number, & 1 special</span>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox"
+                                    class="w-4 h-4 rounded border-gray-300 text-[#6A3FD9] focus:ring-[#6A3FD9] focus:ring-2 transition-all">
+                                <span class="text-sm text-gray-600">Remember me</span>
+                            </label>
+                            <a routerLink="/forgotPassword"
+                                class="text-sm font-medium text-[#6A3FD9] hover:text-[#3E6EDC] hover:underline transition-colors">Forgot
+                                Password?</a>
+                        </div>
+                        <button [disabled]="loading"
+                            class="relative mt-8 cursor-pointer w-full flex justify-center py-4 px-4 border border-transparent rounded-2xl shadow-lg text-md font-bold text-white hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-4 focus:ring-[#6A3FD9]/30 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all duration-300 overflow-hidden"
+                            style="background: linear-gradient(135deg, #6A3FD9, #3E6EDC, #4FA7D9);">
+                            @if(loading){
+                            <i class="fas fa-spinner animate-spin mr-2 mt-0.5"></i> Logging in...
+                            } @else {
+                            Log In
+                            }
+                        </button>
+                        @if (msgError){
+                        <div
+                            class="mt-4 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>{{msgError}}</span>
+                        </div>
+                        }
+                    </form>
+                    <div class="mt-8 pt-6 text-center border-t border-gray-200">
+                        <p class="text-sm text-gray-600">
+                            Don't have an account?
+                            <a routerLink="/register"
+                                class="font-bold text-[#6A3FD9] hover:text-[#3E6EDC] hover:underline transition-all">Sign
+                                up</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
